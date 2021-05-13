@@ -1,0 +1,9 @@
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd">
+    <!--缓存溢出的数据存入磁盘指定位置    -->
+    <diskStore path="d:\\ehcache"/>
+
+    <!--配置缓存-->
+    <defaultCache maxElementsInMemory="10" eternal="false" timeToIdleSeconds="5" timeToLiveSeconds="10"
+                  overflowToDisk="true" copyOnRead="true" copyOnWrite="true"/>
+</ehcache>

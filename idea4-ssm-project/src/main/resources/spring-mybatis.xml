@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd">
+    <!---表明使用properties文件填充连接池对象的属性值-->
+    <context:property-placeholder location="classpath:druid.properties"/>
+
+    <!--配置数据源对象;Spring框架指定了DBCP2连接池的使用-->
+    <bean id="dbcp2" class="org.apache.commons.dbcp2.BasicDataSource">
+        <!--访问数据库的4大参数-->
+        <property name="driverClassName" value="${dbDriver}"/>
+        <property name="url" value="${dbUrl}"/>
+        <property name="username" value="${dbUsername}"/>
+        <property name="password" value="${dbPassword}"/>
+
+        <!--连接池的设置-->
+        <property name="initialSize"  value="${initialSize}"/>
+        <property name="maxTotal" value="${maxTotal}"/>
+        <property name="maxIdle" value="${maxIdle}"/>
+        <property name="minIdle" value="${minIdle}"/>
+        <property name="maxWaitMillis" value="${maxWaitMillis}"/>
+    </bean>
+
+    <!--Spring整合MyBatis框架:采用FctoryBean来创建SqlSessionFactory-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dbcp2"/>
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+    </bean>
+    <!--Spring框架整合MyBatis:将自动创建Mapper对象-->
+    <bean id="mapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+        <!--指定dao接口的位置-->
+        <property name="basePackage" value="com.intouch.ssm.dao"/>
+    </bean>
+
+    <!--Spring框架创建业务组件对象及其aop对象-->
+    <context:component-scan base-package="com.intouch.ssm.service.impl,com.intouch.ssm.aop"/>
+
+    <!--注册事务管理器-->
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dbcp2"/>
+    </bean>
+    <!--实施注解驱动的事务-->
+    <tx:annotation-driven transaction-manager="txManager"/>
+
+    <!--告知Spring框架采用aspectj注解的方式自动创建代理对象-->
+    <aop:aspectj-autoproxy />
+
+</beans>
